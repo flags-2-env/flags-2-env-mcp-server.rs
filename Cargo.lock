@@ -302,6 +302,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d45db016d36b838f563236e9193d0ee6ce38f3f68b6c94e914b4929c96bbb890"
 
 [[package]]
+name = "flags-2-env-mcp-server"
+version = "0.1.0"
+dependencies = [
+ "ore-mcp-org-server",
+ "tokio",
+]
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -970,14 +978,6 @@ version = "0.1.0"
 source = "git+https://github.com/ORESoftware/mcp-rust-libs?rev=42cd61aae6908a7c587ababd954bcd8a05520d92#42cd61aae6908a7c587ababd954bcd8a05520d92"
 dependencies = [
  "serde_json",
-]
-
-[[package]]
-name = "ore-org-mcp-server"
-version = "0.1.0"
-dependencies = [
- "ore-mcp-org-server",
- "tokio",
 ]
 
 [[package]]
