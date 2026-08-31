@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "organization": "flags-2-env",
+    "repository": "flags-2-env/flags-2-env-mcp-server.rs",
+    "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5",
+    "linearIssue": "DEN-965",
+    "serverName": "flags-2-env-mcp-server",
+    "summary": "Read-only flags-2-env service, dependency, and infrastructure posture across the exact organization provider boundaries."
+  },
+  "protocol": {
+    "finalRevision": "2025-11-25",
+    "transports": [
+      {
+        "kind": "stdio",
+        "enabled": true,
+        "authentication": "process_boundary",
+        "evidence": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]
+      },
+      {
+        "kind": "streamable_http",
+        "enabled": true,
+        "authentication": "oauth_2_1",
+        "endpointPath": "/mcp",
+        "evidence": [{"kind": "source_test", "reference": "src/http.rs#main", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]
+      }
+    ],
+    "remoteAuthorization": {
+      "authority": "shared-auth",
+      "protectedResourceMetadata": true,
+      "wwwAuthenticateChallenge": true,
+      "audienceBound": true,
+      "authorizedClientValidated": true,
+      "realmValidated": true,
+      "noTokenPassthrough": true,
+      "exactHostPolicy": true,
+      "credentialedRedirectsDisabled": true,
+      "credentialedAmbientProxyDisabled": true,
+      "requestBodyMaxBytes": 262144,
+      "responseBodyMaxBytes": 524288
+    }
+  },
+  "clients": [
+    {"id": "cursor", "role": "mcp_client", "transports": ["stdio", "streamable_http"], "evidence": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]},
+    {"id": "openai", "role": "mcp_client", "transports": ["streamable_http"], "evidence": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]},
+    {"id": "anthropic", "role": "mcp_client", "transports": ["stdio", "streamable_http"], "evidence": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]},
+    {"id": "gemini", "role": "mcp_client", "transports": ["stdio", "streamable_http"], "evidence": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]},
+    {"id": "grok", "role": "mcp_client", "transports": ["streamable_http"], "evidence": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]},
+    {"id": "qwen", "role": "mcp_client", "transports": ["stdio", "streamable_http"], "evidence": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]}
+  ],
+  "integrations": [
+    {
+      "id": "github",
+      "role": "upstream_service",
+      "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"},
+      "configurationKeys": ["ORE_MCP_GITHUB_TOKEN", "GITHUB_TOKEN", "GH_TOKEN"],
+      "allowedOrigins": ["https://api.github.com"],
+      "scopes": ["organization:flags-2-env", "repository:flags-2-env-mcp-server.rs", "actions:read"],
+      "stateModel": ["ready", "not_configured", "degraded", "unauthorized", "forbidden"],
+      "operations": [
+        {"name": "read_organization", "mode": "read", "description": "Read a bounded projection of the exact flags-2-env GitHub organization.", "organizationScope": "github.com/flags-2-env", "timeoutMs": 10000, "outputMaxBytes": 524288},
+        {"name": "read_latest_workflow_run", "mode": "read", "description": "Read the latest Actions run for flags-2-env/flags-2-env-mcp-server.rs only.", "organizationScope": "github.com/flags-2-env/flags-2-env-mcp-server.rs", "timeoutMs": 10000, "outputMaxBytes": 524288}
+      ],
+      "evidence": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]
+    },
+    {
+      "id": "aws",
+      "role": "upstream_service",
+      "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"},
+      "configurationKeys": ["ORE_MCP_AWS_ACCOUNT_ID", "ORE_MCP_AWS_EKS_CLUSTERS", "AWS_REGION"],
+      "allowedOrigins": ["aws-sdk://configured-account"],
+      "scopes": ["sts:GetCallerIdentity", "eks:ListClusters", "account:ORE_MCP_AWS_ACCOUNT_ID"],
+      "stateModel": ["ready", "not_configured", "degraded", "unauthorized", "forbidden"],
+      "operations": [
+        {"name": "read_caller_identity", "mode": "read", "description": "Verify STS caller identity against the exact configured flags-2-env AWS account.", "organizationScope": "AWS account ORE_MCP_AWS_ACCOUNT_ID", "timeoutMs": 15000, "outputMaxBytes": 524288},
+        {"name": "read_eks_clusters", "mode": "read", "description": "List only EKS clusters in the exact configured flags-2-env allowlist.", "organizationScope": "EKS clusters ORE_MCP_AWS_EKS_CLUSTERS", "timeoutMs": 15000, "outputMaxBytes": 524288}
+      ],
+      "evidence": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]
+    },
+    {
+      "id": "gcp",
+      "role": "upstream_service",
+      "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"},
+      "configurationKeys": ["ORE_MCP_GCP_PROJECT_ID", "ORE_MCP_GCP_PROJECT_NUMBER", "ORE_MCP_GCP_ACCESS_TOKEN"],
+      "allowedOrigins": ["https://cloudresourcemanager.googleapis.com", "https://serviceusage.googleapis.com"],
+      "scopes": ["resourcemanager.projects.get", "serviceusage.services.list", "project:ORE_MCP_GCP_PROJECT_ID"],
+      "stateModel": ["ready", "not_configured", "degraded", "unauthorized", "forbidden"],
+      "operations": [
+        {"name": "read_project", "mode": "read", "description": "Read metadata for the exact configured flags-2-env Google Cloud project.", "organizationScope": "GCP project ORE_MCP_GCP_PROJECT_ID", "timeoutMs": 10000, "outputMaxBytes": 524288},
+        {"name": "read_enabled_services", "mode": "read", "description": "List a bounded projection of APIs enabled for the exact project number.", "organizationScope": "GCP project ORE_MCP_GCP_PROJECT_NUMBER", "timeoutMs": 10000, "outputMaxBytes": 524288}
+      ],
+      "evidence": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]
+    },
+    {
+      "id": "supabase",
+      "role": "upstream_service",
+      "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"},
+      "configurationKeys": ["ORE_MCP_SUPABASE_URL", "ORE_MCP_SUPABASE_SERVICE_ROLE_KEY"],
+      "allowedOrigins": ["https://ORE_MCP_SUPABASE_URL"],
+      "scopes": ["exact-project-origin", "auth.settings:read", "rest.openapi:read"],
+      "stateModel": ["ready", "not_configured", "degraded", "unauthorized", "forbidden"],
+      "operations": [
+        {"name": "read_auth_settings", "mode": "read", "description": "Read a safe projection of the exact flags-2-env Supabase auth settings.", "organizationScope": "Supabase origin ORE_MCP_SUPABASE_URL", "timeoutMs": 10000, "outputMaxBytes": 524288},
+        {"name": "read_data_api_schema", "mode": "read", "description": "Read bounded exposed-path metadata from the exact project Data API schema.", "organizationScope": "Supabase origin ORE_MCP_SUPABASE_URL", "timeoutMs": 10000, "outputMaxBytes": 524288}
+      ],
+      "evidence": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]
+    },
+    {
+      "id": "neon",
+      "role": "upstream_service",
+      "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"},
+      "configurationKeys": ["ORE_MCP_NEON_ORGANIZATION_ID", "ORE_MCP_NEON_PROJECT_ID", "ORE_MCP_NEON_API_KEY"],
+      "allowedOrigins": ["https://console.neon.tech"],
+      "scopes": ["projects:read", "branches:read", "search:flags-2-env"],
+      "stateModel": ["ready", "not_configured", "degraded", "unauthorized", "forbidden"],
+      "operations": [
+        {"name": "read_projects", "mode": "read", "description": "List a bounded Neon project projection filtered to the flags-2-env product name.", "organizationScope": "Neon organization ORE_MCP_NEON_ORGANIZATION_ID", "timeoutMs": 10000, "outputMaxBytes": 524288},
+        {"name": "read_project_branches", "mode": "read", "description": "List safe branch state for one exact configured flags-2-env Neon project.", "organizationScope": "Neon project ORE_MCP_NEON_PROJECT_ID", "timeoutMs": 10000, "outputMaxBytes": 524288}
+      ],
+      "evidence": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]
+    },
+    {
+      "id": "cloudflare",
+      "role": "upstream_service",
+      "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"},
+      "configurationKeys": ["ORE_MCP_CLOUDFLARE_ZONE", "ORE_MCP_CLOUDFLARE_ZONE_ID", "ORE_MCP_CLOUDFLARE_API_TOKEN"],
+      "allowedOrigins": ["https://api.cloudflare.com"],
+      "scopes": ["zone:ORE_MCP_CLOUDFLARE_ZONE", "zone:read", "dns:read-without-content"],
+      "stateModel": ["ready", "not_configured", "degraded", "unauthorized", "forbidden"],
+      "operations": [
+        {"name": "read_zone", "mode": "read", "description": "Read bounded metadata for the exact configured flags-2-env Cloudflare zone.", "organizationScope": "Cloudflare zone ORE_MCP_CLOUDFLARE_ZONE", "timeoutMs": 10000, "outputMaxBytes": 524288},
+        {"name": "read_dns_records", "mode": "read", "description": "Read bounded DNS metadata without returning record content or secrets.", "organizationScope": "Cloudflare zone ORE_MCP_CLOUDFLARE_ZONE_ID", "timeoutMs": 10000, "outputMaxBytes": 524288}
+      ],
+      "evidence": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]
+    },
+    {
+      "id": "k8s_cluster",
+      "role": "upstream_service",
+      "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"},
+      "configurationKeys": ["ORE_MCP_K8S_ENABLED", "ORE_MCP_K8S_NAMESPACE", "KUBECONFIG"],
+      "allowedOrigins": ["kubeconfig://flags-2-env"],
+      "scopes": ["namespace:flags-2-env", "deployments:list", "pods:list", "selector:app.kubernetes.io/part-of=flags-2-env"],
+      "stateModel": ["ready", "not_configured", "degraded", "unauthorized", "forbidden"],
+      "operations": [
+        {"name": "read_deployments", "mode": "read", "description": "List bounded deployment readiness in the exact flags-2-env Kubernetes namespace.", "organizationScope": "ORESoftware/k8s-cluster namespace flags-2-env", "timeoutMs": 15000, "outputMaxBytes": 524288},
+        {"name": "read_pods", "mode": "read", "description": "List bounded pod readiness for the exact flags-2-env part-of selector.", "organizationScope": "namespace flags-2-env selector app.kubernetes.io/part-of=flags-2-env", "timeoutMs": 15000, "outputMaxBytes": 524288}
+      ],
+      "evidence": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]
+    },
+    {
+      "id": "nats",
+      "role": "upstream_service",
+      "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"},
+      "configurationKeys": ["ORE_MCP_NATS_URL"],
+      "allowedOrigins": ["nats://ORE_MCP_NATS_URL"],
+      "scopes": ["flags-2-env.mcp.service.read.v1", "flags-2-env.mcp.dependencies.read.v1"],
+      "stateModel": ["ready", "not_configured", "degraded", "unauthorized", "forbidden"],
+      "operations": [
+        {"name": "read_service_snapshot", "mode": "read", "description": "Request a bounded snapshot on the exact flags-2-env service subject.", "organizationScope": "NATS subject flags-2-env.mcp.service.read.v1", "timeoutMs": 5000, "outputMaxBytes": 131072},
+        {"name": "read_dependency_snapshot", "mode": "read", "description": "Request a bounded snapshot on the exact flags-2-env dependency subject.", "organizationScope": "NATS subject flags-2-env.mcp.dependencies.read.v1", "timeoutMs": 5000, "outputMaxBytes": 131072}
+      ],
+      "evidence": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}]
+    }
+  ],
+  "organizationSurface": {
+    "repositories": ["flags-2-env/flags-2-env-mcp-server.rs"],
+    "services": ["flags-2-env-mcp-server", "flags-2-env-provider-plane"],
+    "kubernetesNamespaces": ["flags-2-env"],
+    "natsSubjects": ["flags-2-env.mcp.service.read.v1", "flags-2-env.mcp.dependencies.read.v1"],
+    "runbooks": ["README.md#run", "README.md#validate"],
+    "tools": [
+      {"name": "github_posture", "description": "Read bounded organization metadata and the latest MCP workflow state from the exact flags-2-env GitHub scope.", "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"}, "integrations": ["github"], "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": true}, "inputSchemaClosed": true, "outputMaxBytes": 524288},
+      {"name": "aws_posture", "description": "Verify the configured AWS account and list only allowlisted flags-2-env EKS clusters with explicit failure states.", "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"}, "integrations": ["aws"], "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": true}, "inputSchemaClosed": true, "outputMaxBytes": 524288},
+      {"name": "gcp_posture", "description": "Read the exact configured Google Cloud project and bounded enabled-service state for flags-2-env.", "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"}, "integrations": ["gcp"], "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": true}, "inputSchemaClosed": true, "outputMaxBytes": 524288},
+      {"name": "supabase_posture", "description": "Read bounded auth settings and Data API paths from one exact flags-2-env Supabase project without accepting SQL.", "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"}, "integrations": ["supabase"], "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": true}, "inputSchemaClosed": true, "outputMaxBytes": 524288},
+      {"name": "neon_posture", "description": "Read flags-2-env-filtered Neon projects and safe branch state while excluding connection and credential material.", "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"}, "integrations": ["neon"], "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": true}, "inputSchemaClosed": true, "outputMaxBytes": 524288},
+      {"name": "cloudflare_posture", "description": "Read the exact configured flags-2-env Cloudflare zone and bounded DNS metadata without returning record content.", "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"}, "integrations": ["cloudflare"], "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": true}, "inputSchemaClosed": true, "outputMaxBytes": 524288},
+      {"name": "k8s_posture", "description": "Read deployment and pod readiness only in the flags-2-env namespace on the ORESoftware Kubernetes plane.", "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"}, "integrations": ["k8s_cluster"], "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": true}, "inputSchemaClosed": true, "outputMaxBytes": 524288},
+      {"name": "nats_posture", "description": "Request bounded service and dependency snapshots over two exact flags-2-env NATS subjects without wildcard access.", "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"}, "integrations": ["nats"], "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": true}, "inputSchemaClosed": true, "outputMaxBytes": 131072},
+      {"name": "organization_posture", "description": "Compose all eight scoped provider reads into one bounded flags-2-env readiness view while retaining each five-state result.", "implementation": {"module": "src/spec.rs", "symbol": "org_spec", "test": "tests/stdio_parity.rs"}, "integrations": ["github", "aws", "gcp", "supabase", "neon", "cloudflare", "k8s_cluster", "nats"], "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": true}, "inputSchemaClosed": true, "outputMaxBytes": 524288}
+    ],
+    "resources": [
+      {"uri": "orgmap://flags-2-env", "description": "Exact flags-2-env repository, deployment authority, service, and dependency scopes.", "mimeType": "text/markdown"},
+      {"uri": "contract://flags-2-env/mcp-clients", "description": "Local and remote MCP client compatibility plus exact Shared Auth boundaries.", "mimeType": "text/markdown"},
+      {"uri": "contract://flags-2-env/providers", "description": "Five-state provider semantics and exact read-only flags-2-env infrastructure scopes.", "mimeType": "text/markdown"}
+    ],
+    "prompts": [
+      {"name": "deploy_readiness", "description": "Decide whether the flags-2-env MCP and provider stack has sufficient evidence to deploy.", "referencedTools": ["organization_posture"]},
+      {"name": "provider_triage", "description": "Triage one flags-2-env infrastructure dependency without mutation or credential exposure.", "referencedTools": ["organization_posture", "github_posture", "aws_posture", "gcp_posture", "supabase_posture", "neon_posture", "cloudflare_posture", "k8s_posture", "nats_posture"]},
+      {"name": "dependency_review", "description": "Review the flags-2-env organization and Zed dependency contract without changing provider state.", "referencedTools": ["organization_posture"]}
+    ],
+    "composedReadTool": "organization_posture"
+  },
+  "security": {
+    "secretsEnvironmentOnly": true,
+    "secretValuesExcluded": true,
+    "stdoutProtocolOnly": true,
+    "boundedLowCardinalityTelemetry": true,
+    "exactOriginAllowlists": true,
+    "credentialedRedirectsDisabled": true,
+    "credentialedAmbientProxyDisabled": true,
+    "mutationGate": {"defaultDenied": true, "runtimeAuthorization": true, "allowlistedTargets": true, "dryRun": true, "targetBoundConfirmation": true, "idempotency": true, "boundedAudit": true}
+  },
+  "evidence": {
+    "repositoryTests": [{"kind": "source_test", "reference": "tests/stdio_parity.rs#stdio_wire_exposes_org_specific_client_and_provider_parity", "revision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5", "verifiedAt": "2026-08-31T22:11:54Z"}],
+    "testOrganization": {
+      "repository": "oresoftware-test/mcp-fleet-conformance",
+      "productionRevision": "3d196f8af19863bc6a95d59b49a2ad4a26bbe9b5",
+      "evidence": {"kind": "test_org_run", "reference": "https://github.com/oresoftware-test/mcp-fleet-conformance/actions/runs/33444116916", "revision": "c5174334dac9219fd567cd584d700e405559ffbf", "verifiedAt": "2026-08-31T22:11:54Z"}
+    },
+    "sharedLibraryRevision": "f470ca5be6389bb20c2291acdfc3a382cb9b39b2",
+    "lockfileCommitted": true
+  }
+}
