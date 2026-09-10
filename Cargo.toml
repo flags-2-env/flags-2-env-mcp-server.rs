@@ -16,7 +16,9 @@ name = "flags-2-env-mcp-http"
 path = "src/http.rs"
 
 [dependencies]
+flags2env = { git = "https://github.com/flags-2-env/flags-2-env", rev = "333c2ace93c362d274171ab0e0edf613d96a8e59" }
 ore-mcp-org-server = { git = "https://github.com/ORESoftware/mcp-rust-libs", rev = "f470ca5be6389bb20c2291acdfc3a382cb9b39b2" }
+tempfile = "3"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 [dev-dependencies]
