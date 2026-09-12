@@ -18,15 +18,23 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Check out exact candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+      - name: Verify exact candidate
+        env:
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
       - uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30
         with:
           toolchain: 1.95.0
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
-      - name: Verify locked dependency graph
+      - name: Generate candidate lock graph
+        run: cargo generate-lockfile
+      - name: Verify candidate dependency graph
         run: cargo metadata --locked --format-version 1 >/dev/null
       - name: Format
         run: cargo fmt --all -- --check
@@ -82,6 +90,26 @@ jobs:
           tar -xzf /tmp/just.tar.gz -C /tmp just
           sudo install -m 0755 /tmp/just /usr/local/bin/just
           just env-check
+      - name: Smoke-test fail-closed flags-2-env boundary
+        run: |
+          set -euo pipefail
+          cargo build --locked --bin flags-2-env-mcp-server --bin flags-2-env-mcp-http
+          marker='synthetic-secret-never-reflect'
+          for binary in flags-2-env-mcp-server flags-2-env-mcp-http; do
+            set +e
+            "target/debug/$binary" "--definitely-not-declared=$marker" \
+              >"$RUNNER_TEMP/$binary.stdout" 2>"$RUNNER_TEMP/$binary.stderr"
+            status=$?
+            set -e
+            test "$status" -ne 0
+            test ! -s "$RUNNER_TEMP/$binary.stdout"
+            if grep -F "$marker" "$RUNNER_TEMP/$binary.stderr"; then
+              echo "rejected argv value leaked from $binary" >&2
+              exit 1
+            fi
+            grep -F "MCP server command-line arguments are not permitted" \
+              "$RUNNER_TEMP/$binary.stderr" >/dev/null
+          done
       - name: Smoke-test JSON-RPC stdio isolation
         run: |
           cargo build --locked --bin flags-2-env-mcp-server
@@ -137,5 +165,13 @@ jobs:
               if line:
                   json.loads(line)
           PY
-      - name: Verify generated state is unchanged
-        run: git diff --exit-code
+      - name: Verify generated state except candidate lockfile is unchanged
+        run: git diff --exit-code -- . ':(exclude)Cargo.lock'
+      - name: Retain candidate Cargo.lock
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: mcp-flags-lock-${{ github.event.pull_request.head.sha || github.sha }}
+          path: Cargo.lock
+          if-no-files-found: error
+          retention-days: 7

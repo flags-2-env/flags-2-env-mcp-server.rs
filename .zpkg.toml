@@ -12,6 +12,7 @@ vcs = "git"
 url = "https://github.com/flags-2-env/flags-2-env-mcp-server.rs"
 
 [dependencies]
+"flags-2-env/flags-2-env" = "^0.3.0"
 "oresoftware/mcp-rust-libs" = "^0.1.0"
 "ores-otel/ores-mcp-server-core-libs" = "^0.1.0"
 "shared-auth/shared-auth-clients" = "^0.1.0"
@@ -35,6 +36,10 @@ exclude = [".env", ".env.*", ".direnv/**", ".vendor/.zed/**", ".zed/**", ".zpkg.
 [install]
 adapter = "none"
 dir = ".vendor/.zed"
+
+[interop.flags-2-env]
+config = ".cli-flags.toml"
+bins = ["flags-2-env-mcp-server"]
 
 [scripts]
 test = "cargo test --all-targets --locked"
