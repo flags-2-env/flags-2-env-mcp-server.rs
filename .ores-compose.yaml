@@ -1,0 +1,11 @@
+schema_version: ores.compose.v1
+project: flags-2-env-mcp-server.rs
+allow_lazy_start: false
+
+services:
+  flags-2-env-mcp-server.rs:
+    name: flags-2-env-mcp-server.rs
+    runtime: host
+    build:
+      - ["cargo", "build", "--bins"]
+    command: ["./target/debug/flags-2-env-mcp-server.rs"]
