@@ -32,7 +32,11 @@ fn preflight_from(argv: &[String]) -> Result<(), String> {
         .parse_structured(argv, Some(path))
         .map_err(|_| "flags-2-env parser unavailable".to_owned())?;
 
-    if !parsed.errors.is_empty()
+    // The shared parser requires a nonempty schema. Its reserved help flag
+    // does not grant this environment-only server a CLI: reject all supplied
+    // arguments, including recognized flags and a bare `--` delimiter.
+    if argv.len() != 1
+        || !parsed.errors.is_empty()
         || !parsed.unknown_options.is_empty()
         || !parsed.extras.is_empty()
         || !parsed.command.is_empty()
@@ -67,6 +71,15 @@ mod tests {
         .expect_err("unknown option must fail");
         assert!(!error.contains(marker));
         assert_eq!(error, "MCP server command-line arguments are not permitted");
+    }
+
+    #[test]
+    fn recognized_flags_and_empty_operands_cannot_bypass_admission() {
+        for argument in ["--help", "--help=true", "--", ""] {
+            let error = preflight_from(&argv(&["flags-2-env-mcp-server", argument]))
+                .expect_err("all supplied arguments must fail");
+            assert_eq!(error, "MCP server command-line arguments are not permitted");
+        }
     }
 
     #[test]
