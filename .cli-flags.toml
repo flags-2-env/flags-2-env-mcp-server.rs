@@ -1,11 +1,7 @@
-# Public argv contract for the flags-2-env organization MCP server.
-#
-# This server intentionally exposes no command-line configuration. Runtime
-# configuration (including credentials, endpoints, auth and provider settings)
-# stays environment-only in the inherited MCP runtime. The contract exists so
-# every argv token is audited by flags-2-env and undeclared options/operands
-# fail closed instead of being silently ignored.
-
+# This MCP service accepts environment configuration only, never CLI arguments.
+# The shared flags-2-env audit requires at least one flag or command declaration.
+# Reserve its conventional help spelling for schema validity; src/flags.rs rejects
+# every supplied argument, including this recognized flag. It is never acted on.
 [help]
 url = "https://github.com/flags-2-env/flags-2-env-mcp-server.rs"
 
@@ -14,3 +10,9 @@ files = []
 
 [parse]
 allow_unknown = false
+
+[flags.help]
+aliases = ["help"]
+env = "FLAGS_2_ENV_MCP_HELP"
+type = "bool"
+default = "false"

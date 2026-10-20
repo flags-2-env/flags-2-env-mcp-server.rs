@@ -33,10 +33,20 @@ sops-private*.txt
 # END ores-sops dotenv policy
 
 # Repository-local temporary data and authorized Git worktrees
-tmp
-temp
 tmp/worktrees
 temp/worktrees
 # Local temporary directories and repository-owned worktrees
 tmp/
 temp/
+
+# Reviewed fleet conformance rules (DEN-3945).
+.ores/
+*/*.env
+*/**/*.env
+*.env.*
+target/
+
+# Keep reviewed examples and SOPS ciphertext trackable after broad dotenv rules.
+!.env.example
+!/env/enc/dev.env.enc
+!/env/enc/prod.env.enc
