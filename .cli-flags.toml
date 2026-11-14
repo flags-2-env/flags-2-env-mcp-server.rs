@@ -14,3 +14,10 @@ files = []
 
 [parse]
 allow_unknown = false
+
+# The canonical parser audits require at least one declared flag or command.
+# This sentinel satisfies the parser's structural schema without admitting a
+# CLI command: preflight_from() rejects ANY non-empty parsed.command before
+# MCP transport initialization. A regression test checks that rejection.
+[commands.__reserved_contract_sentinel]
+help = "Internal argv contract sentinel; never accepted by the MCP server"

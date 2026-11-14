@@ -70,6 +70,16 @@ mod tests {
     }
 
     #[test]
+    fn reserved_catalog_sentinel_never_becomes_a_real_command() {
+        let error = preflight_from(&argv(&[
+            "flags-2-env-mcp-server",
+            "__reserved_contract_sentinel",
+        ]))
+        .expect_err("internal catalog sentinel must be rejected by preflight");
+        assert_eq!(error, "MCP server command-line arguments are not permitted");
+    }
+
+    #[test]
     fn positional_operand_fails_closed() {
         let error = preflight_from(&argv(&["flags-2-env-mcp-server", "unexpected"]))
             .expect_err("unexpected operand must fail");
